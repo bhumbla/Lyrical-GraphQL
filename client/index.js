@@ -7,7 +7,21 @@ import SongCreate from './components/SongCreate';
 
 const client = new ApolloClient({
   uri: `http://localhost:4000/graphql`,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(
+    {
+      typePolicies: {
+         Query: {
+           fields: {
+             songs: {
+               merge (existing = [], incoming) {
+                 return [...incoming];
+               }
+             }
+           }
+         }
+      }
+    }
+  )
 });
 
 const Root = () => {
