@@ -1,7 +1,7 @@
 import './style/style.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Route, HashRouter } from 'react-router-dom';
+import { Route, HashRouter, Switch } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import SongList from './components/SongList';
 import SongCreate from './components/SongCreate';
@@ -30,9 +30,11 @@ const Root = () => {
   return (
     <ApolloProvider client={client}>
       <HashRouter>
-        <Route exact path="/" component={SongList}/>
-        <Route exact path="/songs/new" component={SongCreate}/>
-        <Route exact path="/songs/:id" component={SongDetail}/>
+        <Switch>
+          <Route exact path="/" component={SongList}/>
+          <Route exact path="/songs/new" component={SongCreate}/>
+          <Route exact path="/songs/:id" component={SongDetail}/>
+        </Switch>
       </HashRouter>
     </ApolloProvider>
   )
