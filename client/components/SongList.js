@@ -1,40 +1,9 @@
-import React, { Component } from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import gql from 'graphql-tag';
 import query from '../queries/fetchSongs';
-class SongList extends Component {
-  onSongDelete(id) {
-    this.props.mutate({ variables: { id } })
-      .then(() => this.props.data.refetch());
-  }
-  renderSongs() {
-    return this.props.data.songs.map(({id, title}) => {
-      return (
-        <li key={id} className="collection-item">
-          <Link to={`/songs/${id}`}>{title}</Link>
-          <i className="material-icons" 
-            onClick={() => this.onSongDelete(id)}>delete</i>
-        </li>
-      )
-    })
-  }
+import {gql, useQuery, useMutation}  from '@apollo/client';
 
-  render() {
-    return this.props.data.loading ? (<div> Loading... </div>) : (
-      <div><ul className="collection">{this.renderSongs()}</ul>
-        <Link
-          to="/songs/new"
-          className="btn-floating btn-large red right"
-        >
-          <i className="material-icons">add</i>
-        </Link>
-      </div>
-    );
-  }
-}
-
-const deleteSong = gql`
+const DELETE_SONG = gql`
 mutation DeleteSong($id: ID) {
   deleteSong (id:$id) {
     id
@@ -42,6 +11,40 @@ mutation DeleteSong($id: ID) {
 }
 `;
 
-export default graphql(deleteSong)(
-  graphql(query)(SongList)
-);
+const renderSongs = () => {
+  const {loading, error, data } = useQuery(query);
+  const [deleteSongFn] = useMutation(DELETE_SONG, {
+    refetchQueries: [{query}]
+  });
+
+  if(loading) return (<div>"Loading..."</div>);
+
+  if(error) return error.message;
+
+  if(!data || !data.songs) return 'Songs not found';
+
+  return data.songs.map(({id, title}) => {
+    return (
+      <li key={id} className="collection-item">
+      <Link to={`/songs/${id}`}>{title}</Link>
+      <i className="material-icons" 
+        onClick={() => deleteSongFn({variables: { id }})}>delete</i>
+    </li> 
+    )
+  })
+}
+
+const SongList = () => {
+  return (
+    <div><ul className="collection">{renderSongs()}</ul>
+      <Link
+        to="/songs/new"
+        className="btn-floating btn-large red right"
+      >
+        <i className="material-icons">add</i>
+      </Link>
+    </div>     
+  )
+}
+
+export default SongList;

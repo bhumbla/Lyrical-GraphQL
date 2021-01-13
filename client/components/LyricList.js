@@ -1,50 +1,7 @@
-import React, { Component } from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
+import React from 'react';
+import { gql, useMutation } from '@apollo/client';
 
-class LyricList extends Component {
-
-  onLike(id, currentNumOfLikes) {
-    console.log(id);
-
-    this.props.mutate({
-      variables: { id },
-      optimisticResponse: {
-        __typename: 'Mutation',
-        likeLyric: {
-          id: id,
-          __typename: 'LyricType',
-          likes: currentNumOfLikes++
-        }
-      }
-    })
-  }
-
-  renderLyrics() {
-    return this.props.lyrics.map(({id, content, likes}) => {
-      return (
-        <li key={id} className="collection-item">
-          {content}
-          <span className="vote-box">
-            <i className="material-icons" 
-            onClick={() => this.onLike(id, likes)}>thumb_up</i>
-            {likes}
-          </span>
-        </li>
-      )
-    })
-  }
-
-  render() {
-    return (
-      <ul className="collection">
-        {this.renderLyrics()}
-      </ul>
-    )
-  }
-}
-
-const mutation = gql`
+const LIKE_LYRIC = gql`
   mutation LikeLyric($id:ID) {
     likeLyric(id:$id) {
       id
@@ -52,5 +9,39 @@ const mutation = gql`
     }
   }
 `
+const renderLyrics = (lyrics) => {
+  const [likeLyric] = useMutation(LIKE_LYRIC);
+  
+  return lyrics.map(({ id, content, likes }) => {
+  
+    return (
+      <li key={id} className="collection-item">
+        {content}
+        <span className="vote-box">
+          <i className="material-icons"
+            onClick={() => likeLyric({
+              variables: { id },
+              optimisticResponse: {
+                __typename: 'Mutation',
+                likeLyric: {
+                  id: id,
+                  __typename: 'LyricType',
+                  likes: likes++
+                }
+              }
+            })}>thumb_up</i>
+          {likes}
+        </span>
+      </li>
+    )
+  });
+}
 
-export default graphql(mutation)(LyricList);
+const LyricList = (props) => {
+  return (
+    <ul className="collection">
+      {renderLyrics(props.lyrics)}
+    </ul>
+  )
+}
+export default LyricList;

@@ -1,37 +1,7 @@
-import React, {Component} from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
-class LyricCreate extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { content: ''};
-  }
+import React, {useState} from 'react';
+import { gql, useMutation } from '@apollo/client';
 
-  onSubmit(event) {
-    event.preventDefault();
-
-    this.props.mutate({
-      variables: {
-        content: this.state.content,
-        songId: this.props.songId
-      }
-    }).then(() => this.setState({content: ''}));
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.onSubmit.bind(this)}>
-        <label>Add a Lyric</label>
-        <input 
-          value={this.state.content}
-          onChange = {event => this.setState({content: event.target.value})}
-        />
-      </form>
-    )
-  }
-}
-
-const mutation = gql`
+const ADD_LYRIC_TO_SONG = gql`
   mutation AddLyricToSong($content:String, $songId:ID){
     addLyricToSong(content:$content, songId:$songId) {
       id
@@ -44,4 +14,32 @@ const mutation = gql`
   }
 `;
 
-export default graphql(mutation)(LyricCreate);
+const LyricCreate = (props) => {
+  const [content, setLyric] = useState('');
+  const [addLyric] = useMutation(ADD_LYRIC_TO_SONG, {
+    update: () => {
+      setLyric('');
+    }
+  });
+
+  return (
+    <form onSubmit={(e) => {
+        e.preventDefault();
+        addLyric({
+          variables: {
+            content,
+            songId: props.songId
+          }
+        })
+      }}>
+      <label>Add a Lyric</label>
+      <input 
+        value={content}
+        onChange = {event => setLyric(event.target.value)}
+      />
+    </form>
+
+  )
+}
+
+export default LyricCreate;
