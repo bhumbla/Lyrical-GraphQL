@@ -23,7 +23,7 @@
     "express-session": "^1.17.2",
     "graphql": "^16.4.0",
     "lodash": "^4.17.21",
-    "mongoose": "^6.4.6",
+    "mongoose": "^6.11.3",
     "nodemon": "^2.0.20",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
