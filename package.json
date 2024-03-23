@@ -41,6 +41,6 @@
     "dotenv": "^16.0.0",
     "html-webpack-plugin": "^5.5.0",
     "subscriptions-transport-ws": "^0.9.18",
-    "webpack-dev-middleware": "^5.3.1"
+    "webpack-dev-middleware": "^5.3.4"
   }
 }
